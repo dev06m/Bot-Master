@@ -16,10 +16,12 @@ Coded by www.creative-tim.com
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDPagination from "components/MDPagination";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -30,9 +32,11 @@ import DataTable from "examples/Tables/DataTable";
 // Data
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
+import { useEffect, useState } from "react";
 
 function Tables() {
-  const { columns, rows } = authorsTableData();
+  const [page_nume, setPageNum] = useState(1); 
+  var { columns, rows } = authorsTableData(page_nume);
   const { columns: pColumns, rows: pRows } = projectsTableData();
 
   return (
@@ -53,7 +57,7 @@ function Tables() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Authors Table
+                  Dota 2 Skins
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -66,6 +70,23 @@ function Tables() {
                 />
               </MDBox>
             </Card>
+            <MDBox
+                pt={3}
+              >
+              <MDPagination>
+                <MDPagination item>
+                  <Icon>keyboard_arrow_left</Icon>
+                </MDPagination>
+                <MDPagination item onClick={() => setPageNum(1)}>1</MDPagination>
+                <MDPagination item onClick={() => setPageNum(2)}>2</MDPagination>
+                <MDPagination item onClick={() => setPageNum(3)}>3</MDPagination>
+                <MDPagination item onClick={() => setPageNum(4)}>4</MDPagination>
+                <MDPagination item onClick={() => setPageNum(5)}>5</MDPagination>
+                <MDPagination item>
+                  <Icon>keyboard_arrow_right</Icon>
+                </MDPagination>
+              </MDPagination>
+            </MDBox>
           </Grid>
           <Grid item xs={12}>
             <Card>
