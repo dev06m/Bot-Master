@@ -93,8 +93,7 @@ export default function data(page_num) {
         var result =  await fetch('https://buff.163.com/api/market/goods?game=dota2&page_num=1&search='+str(name), {
             method: "GET",
             headers: {
-                "Cookie": ""//"Device-Id=89rhBjowQwPGegiuYxZS; P_INFO=90-5399138096|1704202553|1|netease_buff|00&99|null&null&null#TR&null#10#0|&0||90-5399138096; Locale-Supported=en; session=1-VBNljroky1VN_XHbg63n4vTdHabn_PYgV2qlGWQt9kdc2034331581; game=dota2; csrf_token=IjFkNTY2MmY4YzM1MzI2ZTQ3Njc0ODRmYTM2M2EwYjgxM2I3NGRmYTUi.GQvTOw.GGgl7zdkBHRH9xz6b0Yo_CG9Le4",
-                // 'Content-Type': 'application/x-www-form-urlencoded',
+                "Cookie": ""
             }
         })
         .then(response => {
@@ -186,7 +185,6 @@ export default function data(page_num) {
   //     lis_3: "dsfsd",
   //   },
   // ]);
-  var p = page_num;
   return {
     columns: [
       { Header: "item adı", accessor: "item_adı", width: "45%", align: "left" },

@@ -51,7 +51,7 @@ const MDPagination = forwardRef(
         ) : (
           <MDBox
             display="flex"
-            justifyContent="flex-end"
+            justifyContent="center"
             alignItems="center"
             sx={{ listStyle: "none" }}
           >
