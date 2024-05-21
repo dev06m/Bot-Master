@@ -34,12 +34,11 @@ import myData from './data.json';
 export default function data(page_num) {
   const [objs, setObjs] = useState([]);
   const [itemData, setItemData] = useState([]);
-  const item_count = 10;
+  const item_count = 5;
 
   const f = async () => {
-    debugger
-    async function get_lisskin_items(page_num) { // page
-      //page_num = 1;
+    async function get_lisskin_items(page_num) { 
+      
       const buff_items_ids = myData;
       const slice_start = (page_num-1) * item_count;
       const slice_end = slice_start + item_count;
@@ -48,25 +47,36 @@ export default function data(page_num) {
   
           return response.text()
       }).then((html) => {
-          console.log(html)
           const regex_names = /(?<=<div class="name-inner">).*?(?=<\/div>)/g;
           var match_names = html.match(regex_names);
+          
           const regex_prices = /(?<=<div class="price">).*?(?=<\/div>)/g;
           var match_prices = html.match(regex_prices);
-          const regex_satis_sayisi = /<div class="similar-count"\s[^>]*>(.*)\s+[^>]/g;
-          var math_satis_sayisiices = html.match(regex_satis_sayisi);
-          const regex_lis_sayi = /<div data-link([\s\S]*?)<\/span><\/div>/gm;
-          var eslesme = html.match(regex_lis_sayi);  // starting-point
+          //const regex_satis_sayisi = /<div class="similar-count"\s[^>]*>(.*)\s+[^>]/g;
+          // var math_satis_sayisiices = html.match(regex_satis_sayisi);
+          // const regex_item_data_withOutCount = /<div data-link([\s\S]*?)<\/span><\/div>/gm;
+          const regex_item_data_withCount = /<div data-link([\s\S]*?)<i><\/i><\/div>/gm;
+          //var eslesme = html.match(regex_item_data_withOutCount);  // starting-point
+          var eslesme = html.match(regex_item_data_withCount);  // starting-point
+          const names_counts = []
+          console.log(eslesme)
+          eslesme.forEach(x => {
+            var count = x.split('>x')[1].slice(0, 3).split("\n")[0];
+            names_counts.push({
+              name: x.match(regex_names)[0],
+              count
+            })
+          })
           
-          debugger
           const result = match_names.slice(slice_start, slice_end).map((item_name, index) => {
               const id = buff_items_ids.find(item => item.Name === item_name)?.ID;
               
               return {
                   id: id,
                   item_name,
+                  lis_url: 'https://lis-skins.ru/market/dota2/' + strLis(item_name),
                   lisskin_price: match_prices.slice(slice_start, slice_end)[index].replaceAll('$', ''),
-                  lisskin_satis_sayisi: math_satis_sayisiices.slice(slice_start, slice_end)[index],
+                  lisskin_satis_sayisi: names_counts?.find(x => x?.name === item_name) ? names_counts?.find(x => x?.name === item_name)?.count : 1,
               }
           });
           setItemData(result);
@@ -82,7 +92,6 @@ export default function data(page_num) {
           return response.json();
         }).then(res => {
           items = res.data.items;
-          console.log(res.data.items[0].price)
           return { price: items[0].price, satis_sayisi: res.data.total_count, icon_url: res.data.goods_infos[id].icon_url }; 
             
         }).catch(error => console.log(error))
@@ -112,6 +121,12 @@ export default function data(page_num) {
         return stryArr.join('+');
     }
 
+    function strLis(str) {
+      var stryArr = str.split(' ');
+  
+        return stryArr.join('-');
+    }
+
     async function compare_prices() {
         
         const lisskin_items = await get_lisskin_items(page_num);
@@ -122,7 +137,6 @@ export default function data(page_num) {
         const items = []
         const compared_items = lisskin_items.map((item, index) => {
           var price = parseFloat(price_satis_url[index]?.price); // sikinti olabilir
-          console.log(price)
             items.push({
                 ...item,
                 icon_url: price_satis_url[index]?.icon_url,
@@ -132,9 +146,7 @@ export default function data(page_num) {
             })
             
         })
-        debugger
-        items.sort((a, b) => parseFloat(b.kar.split(" ")[0]) - parseFloat(a.kar.split(" ")[0]))
-        console.log(items)
+        items.sort((a, b) => parseFloat(b.kar.split("%")[0]) - parseFloat(a.kar.split("%")[0]))
         setObjs(items);
     }
 
@@ -142,10 +154,10 @@ export default function data(page_num) {
     
   }
   useEffect(() => {
-    
+    console.log(page_num)
     f();
     
-  }, [])
+  }, [page_num])
   
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -167,24 +179,8 @@ export default function data(page_num) {
       <MDTypography variant="caption">{description}</MDTypography>
     </MDBox>
   );
-  const obsj = [
-    {
-      item_adi: "off yarra",
-      lis_: "dsfsd",
-      lis_1: "dsfsd",
-      lis_2: "dsfsd",
-      lis_3: "dsfsd",
-    },
-  ];
-  // setObjs([
-  //   {
-  //     item_adi: "ssas",
-  //     lis_: "dsfsd",
-  //     lis_1: "dsfsd",
-  //     lis_2: "dsfsd",
-  //     lis_3: "dsfsd",
-  //   },
-  // ]);
+  
+
   return {
     columns: [
       { Header: "item adı", accessor: "item_adı", width: "45%", align: "left" },
@@ -196,56 +192,59 @@ export default function data(page_num) {
       { Header: "incele", accessor: "incele_butonu", align: "center" },
     ],
 
-    // rows: objs.map((item, index) => {
-    //   const item_url = `https://buff.163.com/goods/${item.id}?from=market#tab=selling`;
-    //   return {
-    //     item_adı: <Author image={item?.icon_url} name={item?.item_name} email="Dota 2" />,
-    //     Lisskin_Fiyati: (
-    //       <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-    //         {item.lisskin_price}
-    //       </MDTypography>
-    //     ),
-    //     buff_fiyati: (
-    //       <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-    //         {item.buff_price}
-    //       </MDTypography>
-    //     ),
-    //     buff_satis_sayisi: (
-    //       <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-    //         {item.buff_satis_sayisi}
-    //       </MDTypography>
-    //     ),
-        //lis_satis_sayisi: (
-          //       <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          //         {item.lisskin_satis_sayisi}
-          //       </MDTypography>
-          //     ),
-    //     kar: (
-    //       <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-    //         {item.kar}
-    //       </MDTypography>
-    //     ),
-    //     incele_butonu: (
-    //       <MDButton variant="gradient" color="info"><a href={item_url} target="_blank" rel="noreferrer">İncele</a></MDButton>
-    //     )
-    //   }
-    // })
-    rows: [
-      {
-        item_adı: page_num.toString(),
-        Lisskin_Fiyati: page_num,
-              buff_fiyati: 10,
-              buff_satis_sayisi: 99,
-              lis_satis_sayisi: 100,
-              kar: "55 %",
-              incele_butonu: (
-                <MDBox>
-                    <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer" size="small">Lis</a></MDButton>
-                    <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer">Buff</a></MDButton>
-                    <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer">Grafik</a></MDButton>
-                </MDBox>
-              )
-          }
-    ],
+    rows: objs.map((item, index) => {
+      const item_url = `https://buff.163.com/goods/${item.id}?from=market#tab=price-chart`;
+      return {
+        item_adı: <Author image={item?.icon_url} name={item?.item_name} email="Dota 2" />,
+        Lisskin_Fiyati: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {item.lisskin_price}
+          </MDTypography>
+        ),
+        buff_fiyati: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {item.buff_price}
+          </MDTypography>
+        ),
+        buff_satis_sayisi: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {item.buff_satis_sayisi}
+          </MDTypography>
+        ),
+        lis_satis_sayisi: (
+                <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+                  {item.lisskin_satis_sayisi}
+                </MDTypography>
+              ),
+        kar: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {item.kar}
+          </MDTypography>
+        ),
+        incele_butonu: (
+          <MDBox>
+            <MDButton variant="gradient" color="info"><a href={item_url} target="_blank" rel="noreferrer">Buff</a></MDButton>
+            <MDButton variant="gradient" color="info"><a href={item.lis_url} target="_blank" rel="noreferrer" size="small">LisSkin</a></MDButton>
+          </MDBox>
+        )
+      }
+    })
+    // rows: [
+    //   {
+    //     item_adı: page_num.toString(),
+    //     Lisskin_Fiyati: page_num,
+    //           buff_fiyati: 10,
+    //           buff_satis_sayisi: 99,
+    //           lis_satis_sayisi: 100,
+    //           kar: "55 %",
+    //           incele_butonu: (
+    //             <MDBox>
+    //                 <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer" size="small">Lis</a></MDButton>
+    //                 <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer">Buff</a></MDButton>
+    //                 <MDButton variant="gradient" color="info"><a href="https://lis-skins.ru/profile/inventory/" target="_blank" rel="noreferrer">Grafik</a></MDButton>
+    //             </MDBox>
+    //           )
+    //       }
+    // ],
   }
 }

@@ -18,6 +18,8 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
 
+//import CircularProgress from '@mui/material/CircularProgress';
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -38,6 +40,27 @@ function Tables() {
   const [page_nume, setPageNum] = useState(1); 
   var { columns, rows } = authorsTableData(page_nume);
   const { columns: pColumns, rows: pRows } = projectsTableData();
+  const [ loading, setLoading ] = useState(true);
+
+  useEffect(() => {
+    console.log(rows)
+    if (rows.length > 0)
+      setLoading(false); 
+    else
+      setLoading(true);
+      console.log(rows)
+  }, [page_nume])
+  
+  const fetch_byPageNum = async () => {
+    await setLoading(false);
+  }
+
+  const set_loadinAndPageNum = (num) => {
+    
+    rows = [];
+    setLoading(true);
+    setPageNum(num);
+  }
 
   return (
     <DashboardLayout>
@@ -69,24 +92,31 @@ function Tables() {
                   noEndBorder
                 />
               </MDBox>
-            </Card>
-            <MDBox
-                pt={3}
-              >
-              <MDPagination>
-                <MDPagination item>
-                  <Icon>keyboard_arrow_left</Icon>
+              </Card>
+              <MDBox
+                  pt={3}
+                >
+                <MDPagination>
+                  <MDPagination item>
+                    <Icon>keyboard_arrow_left</Icon>
+                  </MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(1)}>1</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(2)}>2</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(3)}>3</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(4)}>4</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(5)}>5</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(6)}>6</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(7)}>7</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(8)}>8</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(9)}>9</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(10)}>10</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(11)}>11</MDPagination>
+                  <MDPagination item onClick={() => set_loadinAndPageNum(12)}>12</MDPagination>
+                  <MDPagination item>
+                    <Icon>keyboard_arrow_right</Icon>
+                  </MDPagination>
                 </MDPagination>
-                <MDPagination item onClick={() => setPageNum(1)}>1</MDPagination>
-                <MDPagination item onClick={() => setPageNum(2)}>2</MDPagination>
-                <MDPagination item onClick={() => setPageNum(3)}>3</MDPagination>
-                <MDPagination item onClick={() => setPageNum(4)}>4</MDPagination>
-                <MDPagination item onClick={() => setPageNum(5)}>5</MDPagination>
-                <MDPagination item>
-                  <Icon>keyboard_arrow_right</Icon>
-                </MDPagination>
-              </MDPagination>
-            </MDBox>
+              </MDBox>
           </Grid>
           <Grid item xs={12}>
             <Card>
@@ -119,7 +149,7 @@ function Tables() {
       </MDBox>
       <Footer />
     </DashboardLayout>
-  );
+    )
 }
 
 export default Tables;
